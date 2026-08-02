@@ -2,26 +2,24 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/db.js";
+import authRoutes from "./routes/auth.routes.js"; 
 
-// .env file ko load karne ke liye
 dotenv.config();
-
-// Database connect karna
 connectDB();
 
 const app = express();
 
-// Middlewares
 app.use(cors());
-app.use(express.json()); // Postman se aane wale JSON data ko samajhne ke liye
+app.use(express.json());
 
-// Testing Route
+// Naye Auth Routes yahan connect kiye hain
+app.use("/api/auth", authRoutes);
+
 app.get("/", (req, res) => {
-  res.send("Marketplace API is running perfectly!");
+  res.send("Welcome to Backend API! Database Connected Successfully.");
 });
 
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
