@@ -5,7 +5,9 @@ import connectDB from "./config/db.js";
 import authRoutes from "./routes/auth.routes.js";
 import productRoutes from "./routes/product.routes.js";
 import recommendationRoutes from "./routes/recommendation.routes.js";
-import marketplaceRoutes from "./routes/marketplace.routes.js"; // 👈 1. Import marketplace routes
+import marketplaceRoutes from "./routes/marketplace.routes.js";
+import paymentRoutes from "./routes/payment.routes.js";
+import orderRoutes from "./routes/order.routes.js"; // 👈 1. Import order routes
 
 dotenv.config();
 connectDB();
@@ -19,7 +21,9 @@ app.use(express.json());
 app.use("/api/auth", authRoutes); 
 app.use("/api/products", productRoutes); 
 app.use("/api/recommendations", recommendationRoutes); 
-app.use("/api/marketplace", marketplaceRoutes); // 👈 2. Connect marketplace routes
+app.use("/api/marketplace", marketplaceRoutes); 
+app.use("/api/payment", paymentRoutes); 
+app.use("/api/orders", orderRoutes); // 👈 2. Connect order routes
 
 app.get("/", (req, res) => {
   res.send("Welcome to Backend API! Database Connected Successfully.");
