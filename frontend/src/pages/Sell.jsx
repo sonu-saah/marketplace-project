@@ -3,106 +3,193 @@ import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 
 export default function Sell() {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
-    price: "",
-    category: "Electronics",
     brand: "",
-    condition: "Used", // Aapke backend ke hisab se
+    category: "",
+    price: "",
+    condition: "New",
     imageUrl: "",
-    description: "",
+    description: ""
   });
-  
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
-  const handleListingSubmit = async (e) => {
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      // Backend ko exact wahi data bhej rahe hain jo usko chahiye
-      await API.post("/products/add", {
-        ...formData,
-        price: Number(formData.price), 
-        // Dummy sellerId bhej rahe hain (jab tak user login properly connect nahi hota)
-        sellerId: "60d0fe4f5311236168a109ca" 
-      });
-      
-      alert("Product successfully listed on OLX/Marketplace!");
+      await API.post("/products/add", formData);
+      alert("Product Listed Successfully! 🎉");
       navigate("/"); // Home page par wapas bhej dega
-    } catch (err) {
-      console.error("Error publishing product:", err);
-      alert("Failed to list product. Server Error.");
+    } catch (error) {
+      console.error("Error adding product:", error);
+      alert("Failed to list product. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center px-6 py-12 relative overflow-hidden">
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-orange-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <div className="min-h-screen bg-[#f4f7f6] flex items-center justify-center p-4 sm:p-8">
+      
+      {/* Main Container */}
+      <div className="max-w-6xl w-full bg-white rounded-[40px] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[700px]">
 
-      <div className="max-w-2xl w-full bg-slate-900/80 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl relative z-10">
-        <div className="text-center mb-8">
-          <span className="bg-orange-500/20 text-orange-400 border border-orange-500/30 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
-            OLX Item Listing
-          </span>
-          <h2 className="text-3xl font-black text-white mt-3">Post Your Item</h2>
+        {/* Left Side: Illustration & Branding */}
+        <div className="w-full md:w-[45%] bg-[#E8F3EA] p-12 flex flex-col justify-between relative overflow-hidden hidden md:flex">
+          <div className="z-10">
+            <h3 className="text-green-600 font-extrabold text-xs tracking-[0.2em] uppercase mb-2">
+              Seller Dashboard
+            </h3>
+            <h1 className="text-4xl font-black text-gray-900 leading-tight">Turn your items <br/> into cash.</h1>
+            <p className="text-gray-500 mt-4 font-medium max-w-sm">List your pre-owned or new products in seconds and reach thousands of buyers instantly.</p>
+          </div>
+
+          {/* Decorative Circles */}
+          <div className="absolute top-[20%] right-[-10%] w-64 h-64 bg-green-200/50 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-[-10%] left-[-10%] w-80 h-80 bg-teal-200/40 rounded-full blur-3xl"></div>
+
+          {/* 3D Illustration */}
+          <img
+            src="https://cdn3d.iconscout.com/3d/premium/thumb/delivery-boy-with-scooter-4994519-4161734.png"
+            alt="Sell Illustration"
+            className="w-full max-w-xs self-center z-10 drop-shadow-2xl hover:scale-105 transition-transform duration-700 ease-in-out"
+            onError={(e) => {
+              e.target.src = "https://cdn3d.iconscout.com/3d/premium/thumb/online-shopping-4994512-4161727.png";
+            }}
+          />
         </div>
 
-        <form onSubmit={handleListingSubmit} className="space-y-5">
-          {/* Title & Brand */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">Item Title *</label>
-              <input type="text" placeholder="e.g. iPhone 14" required value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} className="w-full bg-slate-950/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-orange-500 text-sm" />
-            </div>
-            <div>
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">Brand *</label>
-              <input type="text" placeholder="e.g. Apple, Nike" required value={formData.brand} onChange={(e) => setFormData({...formData, brand: e.target.value})} className="w-full bg-slate-950/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-orange-500 text-sm" />
-            </div>
+        {/* Right Side: Selling Form */}
+        <div className="w-full md:w-[55%] p-10 md:p-14 bg-white overflow-y-auto max-h-[85vh] custom-scrollbar">
+          <div className="mb-8">
+            <h2 className="text-2xl font-black text-gray-900 mb-2">Item Details</h2>
+            <p className="text-gray-400 text-sm font-medium">Please provide accurate details to sell faster.</p>
           </div>
 
-          {/* Price, Category & Condition */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div>
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">Price (₹) *</label>
-              <input type="number" placeholder="999" required min="0" value={formData.price} onChange={(e) => setFormData({...formData, price: e.target.value})} className="w-full bg-slate-950/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-orange-500 text-sm" />
+          <form onSubmit={handleSubmit} className="space-y-6">
+            
+            {/* Title & Brand Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Product Title *</label>
+                <input
+                  type="text"
+                  name="title"
+                  required
+                  placeholder="e.g. iPhone 13 Pro Max"
+                  value={formData.title}
+                  onChange={handleChange}
+                  className="w-full border-b-2 border-gray-100 py-2 text-gray-800 font-medium placeholder-gray-300 focus:outline-none focus:border-green-500 transition-colors bg-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Brand</label>
+                <input
+                  type="text"
+                  name="brand"
+                  placeholder="e.g. Apple"
+                  value={formData.brand}
+                  onChange={handleChange}
+                  className="w-full border-b-2 border-gray-100 py-2 text-gray-800 font-medium placeholder-gray-300 focus:outline-none focus:border-green-500 transition-colors bg-transparent"
+                />
+              </div>
             </div>
-            <div>
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">Category *</label>
-              <select value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})} className="w-full bg-slate-950/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-orange-500 text-sm">
-                <option value="Electronics">Electronics</option>
-                <option value="Fashion">Fashion</option>
-                <option value="Vehicles">Vehicles</option>
-              </select>
+
+            {/* Category & Price Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Category *</label>
+                <select 
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  className="w-full border-b-2 border-gray-100 py-2 text-gray-800 font-medium focus:outline-none focus:border-green-500 transition-colors bg-transparent cursor-pointer"
+                >
+                  <option value="">Select Category</option>
+                  <option value="Electronics">Electronics</option>
+                  <option value="Fashion">Fashion</option>
+                  <option value="Home">Home & Furniture</option>
+                  <option value="Books">Books & Media</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Price (₹) *</label>
+                <input
+                  type="number"
+                  name="price"
+                  required
+                  placeholder="e.g. 45000"
+                  value={formData.price}
+                  onChange={handleChange}
+                  className="w-full border-b-2 border-gray-100 py-2 text-gray-800 font-medium placeholder-gray-300 focus:outline-none focus:border-green-500 transition-colors bg-transparent"
+                />
+              </div>
             </div>
-            <div>
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">Condition *</label>
-              <select value={formData.condition} onChange={(e) => setFormData({...formData, condition: e.target.value})} className="w-full bg-slate-950/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-orange-500 text-sm">
-                <option value="New">New</option>
-                <option value="Used">Used</option>
-                <option value="Refurbished">Refurbished</option>
-              </select>
+
+            {/* Condition & Image Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Condition</label>
+                <select 
+                  name="condition"
+                  value={formData.condition}
+                  onChange={handleChange}
+                  className="w-full border-b-2 border-gray-100 py-2 text-gray-800 font-medium focus:outline-none focus:border-green-500 transition-colors bg-transparent cursor-pointer"
+                >
+                  <option value="New">Brand New</option>
+                  <option value="Like New">Like New (Mint)</option>
+                  <option value="Used">Used (Good)</option>
+                  <option value="Refurbished">Refurbished</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Image URL *</label>
+                <input
+                  type="url"
+                  name="imageUrl"
+                  required
+                  placeholder="https://example.com/image.jpg"
+                  value={formData.imageUrl}
+                  onChange={handleChange}
+                  className="w-full border-b-2 border-gray-100 py-2 text-gray-800 font-medium placeholder-gray-300 focus:outline-none focus:border-green-500 transition-colors bg-transparent"
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Image URL */}
-          <div>
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">Image Link (URL) *</label>
-            <input type="url" placeholder="https://..." required value={formData.imageUrl} onChange={(e) => setFormData({...formData, imageUrl: e.target.value})} className="w-full bg-slate-950/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-orange-500 text-sm" />
-          </div>
+            {/* Description */}
+            <div>
+              <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Description</label>
+              <textarea
+                name="description"
+                rows="3"
+                placeholder="Describe your product's features, defects (if any), and why you are selling it."
+                value={formData.description}
+                onChange={handleChange}
+                className="w-full border-b-2 border-gray-100 py-2 text-gray-800 font-medium placeholder-gray-300 focus:outline-none focus:border-green-500 transition-colors bg-transparent resize-none"
+              ></textarea>
+            </div>
 
-          {/* Description */}
-          <div>
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">Description *</label>
-            <textarea rows="3" placeholder="Condition details..." required value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="w-full bg-slate-950/80 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-orange-500 text-sm resize-none" />
-          </div>
+            {/* Submit Button */}
+            <div className="pt-4">
+              <button 
+                type="submit" 
+                disabled={loading}
+                className={`w-full ${loading ? 'bg-green-400' : 'bg-green-500 hover:bg-green-600'} text-white font-bold py-4 rounded-xl transition-all shadow-[0_8px_20px_rgba(34,197,94,0.3)] hover:shadow-[0_10px_25px_rgba(34,197,94,0.5)] hover:-translate-y-1 flex justify-center items-center gap-2`}
+              >
+                {loading ? "Listing Product..." : "Post Now"} 
+                {!loading && <span>✨</span>}
+              </button>
+            </div>
+          </form>
 
-          <button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg text-sm">
-            {loading ? "Publishing..." : "Post Now (OLX Live)"}
-          </button>
-        </form>
+        </div>
       </div>
     </div>
   );
