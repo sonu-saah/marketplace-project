@@ -8,6 +8,7 @@ import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import SizeRecommendation from "./pages/SizeRecommendation";
 import Sell from "./pages/Sell";
+import Register from "./pages/Register"; // Upar import karein
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/size" element={<SizeRecommendation />} />
           <Route path="/sell" element={<Sell />} />
+          <Route path="/register" element={<Register />} />
         </Routes>
       </Router>
     </CartProvider>

@@ -1,74 +1,85 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import API from "../services/api";
+import React from "react";
+import { Link } from "react-router-dom";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError("");
-    try {
-      const response = await API.post("/auth/login", { email, password });
-      
-      // Agar token ya success message aaye toh localstorage mein save karke Home par redirect karein
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
-      }
-      navigate("/");
-    } catch (err) {
-      setError(err.response?.data?.message || "Invalid credentials. Please try again.");
-    }
-  };
-
   return (
-    <div className="min-h-[85vh] bg-slate-950 flex items-center justify-center px-6 relative overflow-hidden">
-      {/* Background glow */}
-      <div className="absolute w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none"></div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4 sm:p-8">
+      
+      {/* Main Container - Split Screen Design */}
+      <div className="max-w-5xl w-full bg-white rounded-[40px] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[600px]">
 
-      <div className="max-w-md w-full bg-slate-900/60 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl relative z-10">
-        <h2 className="text-3xl font-black text-white text-center mb-2">Welcome Back</h2>
-        <p className="text-slate-400 text-center text-sm mb-8">Enter your credentials to access your node.</p>
-
-        {error && (
-          <div className="mb-4 bg-red-500/20 border border-red-500/30 text-red-400 text-xs p-3 rounded-xl text-center font-semibold">
-            {error}
+        {/* Left Side: Minimalist Form */}
+        <div className="w-full md:w-1/2 p-10 md:p-16 flex flex-col justify-center bg-white">
+          <div className="mb-10">
+            <h3 className="text-orange-500 font-extrabold text-xs tracking-[0.2em] uppercase mb-4">
+              Logo Here
+            </h3>
+            <p className="text-gray-400 text-sm font-medium mb-1">Welcome back !!</p>
+            <h1 className="text-5xl font-black text-gray-900 tracking-tight">Sign in</h1>
           </div>
-        )}
 
-        <form onSubmit={handleLogin} className="space-y-5">
-          <div>
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">Email Address</label>
-            <input 
-              type="email" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@example.com" 
-              required
-              className="w-full bg-slate-950/80 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors text-sm"
+          <form className="space-y-8">
+            {/* Email Input */}
+            <div>
+              <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                placeholder="test@gmail.com"
+                className="w-full border-b-2 border-gray-100 py-2 text-gray-800 font-medium placeholder-gray-300 focus:outline-none focus:border-orange-500 transition-colors bg-transparent"
+              />
+            </div>
+
+            {/* Password Input */}
+            <div>
+              <div className="flex justify-between items-end mb-2">
+                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                  Password
+                </label>
+                <a href="#" className="text-[11px] font-bold text-gray-400 hover:text-orange-500 transition-colors">
+                  Forgot Password ?
+                </a>
+              </div>
+              <input
+                type="password"
+                placeholder="••••••••"
+                className="w-full border-b-2 border-gray-100 py-2 text-gray-800 font-medium placeholder-gray-300 focus:outline-none focus:border-orange-500 transition-colors bg-transparent"
+              />
+            </div>
+
+            {/* Submit Button */}
+            <div className="pt-4 flex justify-center">
+              <button 
+                type="button" 
+                className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3.5 px-10 rounded-full transition-all shadow-[0_8px_20px_rgba(249,115,22,0.3)] hover:shadow-[0_10px_25px_rgba(249,115,22,0.5)] hover:-translate-y-1 flex items-center gap-2 text-sm tracking-wide"
+              >
+                SIGN IN <span>→</span>
+              </button>
+            </div>
+          </form>
+
+          <div className="mt-10 text-center text-xs font-semibold text-gray-400">
+            Don't have an account? <Link to="/register" className="text-orange-500 hover:text-orange-600 ml-1">Sign up</Link>
+          </div>
+        </div>
+
+        {/* Right Side: Pastel Background & Vector Illustration */}
+        <div className="w-full md:w-1/2 bg-[#FFF4EF] p-12 flex items-center justify-center relative overflow-hidden hidden md:flex">
+            
+            {/* Background Decorative Circles */}
+            <div className="absolute top-[-10%] right-[-10%] w-64 h-64 bg-orange-200/50 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-[-10%] left-[-10%] w-64 h-64 bg-rose-200/50 rounded-full blur-3xl"></div>
+
+            {/* Main Vector Illustration (Boy with Shopping Cart) */}
+          {/* Main Vector Illustration (Boy with Shopping Cart) */}
+            <img
+              src="https://cdn3d.iconscout.com/3d/premium/thumb/online-shopping-4994512-4161727.png"
+              alt="E-commerce Illustration"
+              className="w-full max-w-sm object-contain z-10 drop-shadow-2xl hover:scale-105 transition-transform duration-700 ease-in-out"
             />
-          </div>
-          <div>
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">Password</label>
-            <input 
-              type="password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••" 
-              required
-              className="w-full bg-slate-950/80 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors text-sm"
-            />
-          </div>
-          <button 
-            type="submit" 
-            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-3.5 rounded-xl shadow-[0_10px_30px_rgba(79,70,229,0.4)] transition-all"
-          >
-            Authenticate
-          </button>
-        </form>
+        </div>
+
       </div>
     </div>
   );
