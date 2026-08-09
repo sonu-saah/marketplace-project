@@ -12,6 +12,7 @@ import userRoutes from "./routes/user.routes.js";
 import rentalRoutes from "./routes/rental.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import chatRoutes from "./routes/chat.routes.js";
+import aiRoutes from "./routes/ai.routes.js";
 
 
 
@@ -42,6 +43,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/rentals", rentalRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/ai", aiRoutes);
+
 
 
 
