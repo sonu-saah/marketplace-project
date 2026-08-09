@@ -8,20 +8,24 @@ import recommendationRoutes from "./routes/recommendation.routes.js";
 import marketplaceRoutes from "./routes/marketplace.routes.js";
 import paymentRoutes from "./routes/payment.routes.js";
 import orderRoutes from "./routes/order.routes.js";
-import userRoutes from "./routes/user.routes.js"; // 👈 1. Import user routes
+import userRoutes from "./routes/user.routes.js";
+import rentalRoutes from "./routes/rental.routes.js";
 
 dotenv.config();
 connectDB();
 
 const app = express();
 
-// 👇 Sirf yahan CORS ko update kiya hai taaki frontend block na ho
 app.use(cors({
     origin: ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"], 
     credentials: true
 }));
 
 app.use(express.json());
+
+// 👇 YAHAN HAI MAGIC FIX! 
+// Yeh line Express ko batati hai ki 'uploads' folder ko public kardo taaki frontend images dekh sake
+app.use("/uploads", express.static("uploads"));
 
 // API Routes
 app.use("/api/auth", authRoutes); 
@@ -30,7 +34,8 @@ app.use("/api/recommendations", recommendationRoutes);
 app.use("/api/marketplace", marketplaceRoutes); 
 app.use("/api/payment", paymentRoutes); 
 app.use("/api/orders", orderRoutes); 
-app.use("/api/users", userRoutes); // 👈 2. Connect user routes
+app.use("/api/users", userRoutes); 
+app.use("/api/rentals", rentalRoutes);
 
 app.get("/", (req, res) => {
   res.send("Welcome to Backend API! Database Connected Successfully.");
