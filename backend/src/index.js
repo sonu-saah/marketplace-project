@@ -11,6 +11,9 @@ import orderRoutes from "./routes/order.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import rentalRoutes from "./routes/rental.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
+import chatRoutes from "./routes/chat.routes.js";
+
+
 
 dotenv.config();
 connectDB();
@@ -38,6 +41,9 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/users", userRoutes); 
 app.use("/api/rentals", rentalRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/chat", chatRoutes);
+
+
 
 app.get("/", (req, res) => {
   res.send("Welcome to Backend API! Database Connected Successfully.");
