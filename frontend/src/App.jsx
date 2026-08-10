@@ -8,7 +8,9 @@ import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import SizeRecommendation from "./pages/SizeRecommendation";
 import Sell from "./pages/Sell";
-import Register from "./pages/Register"; // Upar import karein
+import Register from "./pages/Register"; 
+import Shop from "./pages/Shop";
+
 
 export default function App() {
   return (
@@ -23,6 +25,9 @@ export default function App() {
           <Route path="/size" element={<SizeRecommendation />} />
           <Route path="/sell" element={<Sell />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/SizeRecommendation" element={<SizeRecommendation />} />
+         <Route path="/shop" element={<Shop />} />
+
         </Routes>
       </Router>
     </CartProvider>

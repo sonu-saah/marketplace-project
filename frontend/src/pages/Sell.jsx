@@ -1,195 +1,201 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import API from "../services/api";
+import React, { useState, useRef } from "react";
+import { Link } from "react-router-dom";
 
 export default function Sell() {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null); 
+  const fileInputRef = useRef(null);
+
   const [formData, setFormData] = useState({
-    title: "",
-    brand: "",
-    category: "",
-    price: "",
-    condition: "New",
-    imageUrl: "",
-    description: ""
+    name: "", brand: "", category: "Sneakers", condition: "New",
+    buyPrice: "", rentPrice: "", aiVerification: false
   });
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+    setFormData({ ...formData, [name]: type === "checkbox" ? checked : value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await API.post("/products/add", formData);
-      alert("Product Listed Successfully! 🎉");
-      navigate("/"); // Home page par wapas bhej dega
-    } catch (error) {
-      console.error("Error adding product:", error);
-      alert("Failed to list product. Please try again.");
-    } finally {
-      setLoading(false);
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImagePreview(URL.createObjectURL(file));
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!imagePreview) {
+      alert("Please upload a product image first! 📸");
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    setTimeout(() => {
+      alert(`🎉 Boom! Your ${formData.brand} ${formData.name} is ready for the Vault! \n\n(Backend lagne ke baad ye sach mein save hoga)`);
+      setIsSubmitting(false);
+    }, 2000);
+  };
+
   return (
-    <div className="min-h-screen bg-[#f4f7f6] flex items-center justify-center p-4 sm:p-8">
+    <div className="bg-[#050505] min-h-screen text-white font-sans selection:bg-[#E5B074] selection:text-black pb-20">
       
-      {/* Main Container */}
-      <div className="max-w-6xl w-full bg-white rounded-[40px] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[700px]">
+      {/* Navbar */}
+      <nav className="w-full border-b border-white/5 py-5 px-8 md:px-16 flex justify-between items-center bg-[#050505]/80 backdrop-blur-md sticky top-0 z-50">
+        <div className="text-xl font-black tracking-[0.2em] text-[#E5B074]">
+          URBN<span className="text-white">LACE</span>
+        </div>
+        <div className="hidden md:flex space-x-10 text-xs font-bold tracking-widest uppercase text-gray-400">
+          <Link to="/" className="hover:text-white transition-colors">Home</Link>
+          <Link to="/shop" className="hover:text-white transition-colors">The Vault</Link>
+          <span className="text-white border-b-2 border-[#E5B074] pb-1">List Item</span>
+        </div>
+        <div className="flex space-x-6 items-center">
+          <Link to="/profile" className="text-xs font-bold text-gray-400 hover:text-white">Profile</Link>
+        </div>
+      </nav>
 
-        {/* Left Side: Illustration & Branding */}
-        <div className="w-full md:w-[45%] bg-[#E8F3EA] p-12 flex flex-col justify-between relative overflow-hidden hidden md:flex">
-          <div className="z-10">
-            <h3 className="text-green-600 font-extrabold text-xs tracking-[0.2em] uppercase mb-2">
-              Seller Dashboard
-            </h3>
-            <h1 className="text-4xl font-black text-gray-900 leading-tight">Turn your items <br/> into cash.</h1>
-            <p className="text-gray-500 mt-4 font-medium max-w-sm">List your pre-owned or new products in seconds and reach thousands of buyers instantly.</p>
+      <div className="max-w-7xl mx-auto px-6 md:px-16 pt-12 flex flex-col xl:flex-row gap-16">
+        
+        {/* Left Side: Instructions */}
+        <div className="xl:w-1/3">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#E5B074]/30 bg-[#E5B074]/10 mb-6">
+            <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#E5B074]">Seller Studio</span>
           </div>
+          <h1 className="text-4xl md:text-5xl font-black tracking-tight leading-[1.1] mb-6">
+            Drop Your <br/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E5B074] to-[#A26744]">Grails.</span>
+          </h1>
+          <p className="text-gray-400 text-sm leading-relaxed mb-10">
+            Join thousands of collectors. List your premium sneakers, luxury watches, and streetwear. Choose to sell them outright or earn passive income by renting them out.
+          </p>
 
-          {/* Decorative Circles */}
-          <div className="absolute top-[20%] right-[-10%] w-64 h-64 bg-green-200/50 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-[-10%] left-[-10%] w-80 h-80 bg-teal-200/40 rounded-full blur-3xl"></div>
-
-          {/* 3D Illustration */}
-          <img
-            src="https://cdn3d.iconscout.com/3d/premium/thumb/delivery-boy-with-scooter-4994519-4161734.png"
-            alt="Sell Illustration"
-            className="w-full max-w-xs self-center z-10 drop-shadow-2xl hover:scale-105 transition-transform duration-700 ease-in-out"
-            onError={(e) => {
-              e.target.src = "https://cdn3d.iconscout.com/3d/premium/thumb/online-shopping-4994512-4161727.png";
-            }}
-          />
+          <div className="space-y-6">
+             <div className="flex gap-4 items-start">
+                <div className="w-10 h-10 rounded-full bg-[#111] flex items-center justify-center text-[#E5B074] font-bold border border-white/5">1</div>
+                <div>
+                   <h4 className="font-bold text-sm mb-1">Upload Details</h4>
+                   <p className="text-xs text-gray-500">Add high-quality photos and exact product specifications.</p>
+                </div>
+             </div>
+             <div className="flex gap-4 items-start">
+                <div className="w-10 h-10 rounded-full bg-[#111] flex items-center justify-center text-[#E5B074] font-bold border border-white/5">2</div>
+                <div>
+                   <h4 className="font-bold text-sm mb-1">Set Your Price</h4>
+                   <p className="text-xs text-gray-500">Decide your Buy price and Per-Day Rent price.</p>
+                </div>
+             </div>
+             <div className="flex gap-4 items-start">
+                <div className="w-10 h-10 rounded-full bg-[#111] flex items-center justify-center text-[#E5B074] font-bold border border-white/5">3</div>
+                <div>
+                   <h4 className="font-bold text-sm mb-1">AI Authentication (Optional)</h4>
+                   <p className="text-xs text-gray-500">Get the 'Verified' badge using our AI image scanner to sell 3x faster.</p>
+                </div>
+             </div>
+          </div>
         </div>
 
-        {/* Right Side: Selling Form */}
-        <div className="w-full md:w-[55%] p-10 md:p-14 bg-white overflow-y-auto max-h-[85vh] custom-scrollbar">
-          <div className="mb-8">
-            <h2 className="text-2xl font-black text-gray-900 mb-2">Item Details</h2>
-            <p className="text-gray-400 text-sm font-medium">Please provide accurate details to sell faster.</p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Right Side: The Form */}
+        <div className="xl:w-2/3">
+          <form onSubmit={handleSubmit} className="bg-[#0A0A0A] border border-white/10 rounded-[2rem] p-8 md:p-12 shadow-2xl relative overflow-hidden">
             
-            {/* Title & Brand Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#E5B074]/5 rounded-full blur-[80px] pointer-events-none"></div>
+
+            {/* 🔥 FITTING MAGIC: Blurry background + Original Image */}
+            <div 
+              onClick={() => fileInputRef.current.click()} 
+              className="w-full h-48 rounded-2xl border-2 border-dashed border-white/20 hover:border-[#E5B074] flex flex-col items-center justify-center cursor-pointer transition-colors mb-8 bg-[#111] group overflow-hidden relative"
+            >
+               <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
+               
+               {imagePreview ? (
+                  <>
+                    {/* Blurry Background Layer */}
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center blur-xl opacity-40" 
+                      style={{ backgroundImage: `url(${imagePreview})` }}
+                    ></div>
+                    
+                    {/* Original Image Layer (Fits perfectly) */}
+                    <img src={imagePreview} alt="Preview" className="relative h-full w-full object-contain p-2 z-10" />
+                  </>
+               ) : (
+                  <>
+                    <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mb-3 group-hover:bg-[#E5B074]/20 transition-colors">
+                       <span className="text-xl">📸</span>
+                    </div>
+                    <p className="text-sm font-bold text-gray-300 group-hover:text-[#E5B074] transition-colors">Drag & drop product images</p>
+                    <p className="text-[10px] text-gray-500 mt-2 uppercase tracking-widest">or click to browse files</p>
+                  </>
+               )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
-                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Product Title *</label>
-                <input
-                  type="text"
-                  name="title"
-                  required
-                  placeholder="e.g. iPhone 13 Pro Max"
-                  value={formData.title}
-                  onChange={handleChange}
-                  className="w-full border-b-2 border-gray-100 py-2 text-gray-800 font-medium placeholder-gray-300 focus:outline-none focus:border-green-500 transition-colors bg-transparent"
-                />
+                <label className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-2 block">Product Name</label>
+                <input required name="name" value={formData.name} onChange={handleChange} type="text" placeholder="e.g., Air Jordan 1 Retro" className="w-full bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#E5B074] transition-colors" />
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Brand</label>
-                <input
-                  type="text"
-                  name="brand"
-                  placeholder="e.g. Apple"
-                  value={formData.brand}
-                  onChange={handleChange}
-                  className="w-full border-b-2 border-gray-100 py-2 text-gray-800 font-medium placeholder-gray-300 focus:outline-none focus:border-green-500 transition-colors bg-transparent"
-                />
+                <label className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-2 block">Brand</label>
+                <input required name="brand" value={formData.brand} onChange={handleChange} type="text" placeholder="e.g., Nike, Rolex, Gucci" className="w-full bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#E5B074] transition-colors" />
               </div>
             </div>
 
-            {/* Category & Price Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div>
-                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Category *</label>
-                <select 
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  className="w-full border-b-2 border-gray-100 py-2 text-gray-800 font-medium focus:outline-none focus:border-green-500 transition-colors bg-transparent cursor-pointer"
-                >
-                  <option value="">Select Category</option>
-                  <option value="Electronics">Electronics</option>
-                  <option value="Fashion">Fashion</option>
-                  <option value="Home">Home & Furniture</option>
-                  <option value="Books">Books & Media</option>
-                  <option value="Other">Other</option>
+                <label className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-2 block">Category</label>
+                <select name="category" value={formData.category} onChange={handleChange} className="w-full bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#E5B074] transition-colors">
+                  <option value="Sneakers">Sneakers</option>
+                  <option value="Watches">Watches</option>
+                  <option value="Apparel">Apparel</option>
+                  <option value="Accessories">Accessories</option>
+                  <option value="Tech">Tech</option>
                 </select>
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Price (₹) *</label>
-                <input
-                  type="number"
-                  name="price"
-                  required
-                  placeholder="e.g. 45000"
-                  value={formData.price}
-                  onChange={handleChange}
-                  className="w-full border-b-2 border-gray-100 py-2 text-gray-800 font-medium placeholder-gray-300 focus:outline-none focus:border-green-500 transition-colors bg-transparent"
-                />
-              </div>
-            </div>
-
-            {/* Condition & Image Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Condition</label>
-                <select 
-                  name="condition"
-                  value={formData.condition}
-                  onChange={handleChange}
-                  className="w-full border-b-2 border-gray-100 py-2 text-gray-800 font-medium focus:outline-none focus:border-green-500 transition-colors bg-transparent cursor-pointer"
-                >
-                  <option value="New">Brand New</option>
-                  <option value="Like New">Like New (Mint)</option>
-                  <option value="Used">Used (Good)</option>
-                  <option value="Refurbished">Refurbished</option>
+                <label className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-2 block">Condition</label>
+                <select name="condition" value={formData.condition} onChange={handleChange} className="w-full bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#E5B074] transition-colors">
+                  <option value="New">Brand New / Deadstock</option>
+                  <option value="Mint">Mint Condition</option>
+                  <option value="Used">Gently Used</option>
                 </select>
               </div>
+            </div>
+
+            <hr className="border-white/5 mb-8" />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div>
-                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Image URL *</label>
-                <input
-                  type="url"
-                  name="imageUrl"
-                  required
-                  placeholder="https://example.com/image.jpg"
-                  value={formData.imageUrl}
-                  onChange={handleChange}
-                  className="w-full border-b-2 border-gray-100 py-2 text-gray-800 font-medium placeholder-gray-300 focus:outline-none focus:border-green-500 transition-colors bg-transparent"
-                />
+                <label className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-2 block">Buy Price (₹)</label>
+                <input required name="buyPrice" value={formData.buyPrice} onChange={handleChange} type="number" placeholder="Enter full sale price" className="w-full bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#E5B074] transition-colors" />
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-widest text-[#E5B074] font-bold mb-2 block">Rent Price (₹ / Day)</label>
+                <input name="rentPrice" value={formData.rentPrice} onChange={handleChange} type="number" placeholder="Leave blank if not renting" className="w-full bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-3 text-sm text-[#E5B074] outline-none focus:border-[#E5B074] transition-colors placeholder-gray-600" />
               </div>
             </div>
 
-            {/* Description */}
-            <div>
-              <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Description</label>
-              <textarea
-                name="description"
-                rows="3"
-                placeholder="Describe your product's features, defects (if any), and why you are selling it."
-                value={formData.description}
-                onChange={handleChange}
-                className="w-full border-b-2 border-gray-100 py-2 text-gray-800 font-medium placeholder-gray-300 focus:outline-none focus:border-green-500 transition-colors bg-transparent resize-none"
-              ></textarea>
+            <div className="flex items-center gap-4 mb-10 bg-[#111] p-4 rounded-xl border border-white/5">
+               <input type="checkbox" name="aiVerification" checked={formData.aiVerification} onChange={handleChange} className="w-5 h-5 accent-[#E5B074] cursor-pointer" id="aiCheck" />
+               <label htmlFor="aiCheck" className="cursor-pointer">
+                  <h4 className="text-sm font-bold">Request AI Authentication 🤖</h4>
+                  <p className="text-[10px] text-gray-500 mt-1">Our AI will scan your images to provide a 'Verified' badge.</p>
+               </label>
             </div>
 
-            {/* Submit Button */}
-            <div className="pt-4">
-              <button 
-                type="submit" 
-                disabled={loading}
-                className={`w-full ${loading ? 'bg-green-400' : 'bg-green-500 hover:bg-green-600'} text-white font-bold py-4 rounded-xl transition-all shadow-[0_8px_20px_rgba(34,197,94,0.3)] hover:shadow-[0_10px_25px_rgba(34,197,94,0.5)] hover:-translate-y-1 flex justify-center items-center gap-2`}
-              >
-                {loading ? "Listing Product..." : "Post Now"} 
-                {!loading && <span>✨</span>}
-              </button>
-            </div>
+            <button disabled={isSubmitting} type="submit" className="w-full py-4 bg-gradient-to-r from-[#E5B074] to-[#C98A47] text-black text-xs font-black tracking-widest uppercase rounded-xl hover:shadow-[0_0_20px_rgba(229,176,116,0.3)] transition-all flex justify-center items-center gap-2 transform active:scale-95">
+              {isSubmitting ? (
+                 <>
+                   <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></span>
+                   Processing Vault Entry...
+                 </>
+              ) : "List Item in Vault"}
+            </button>
+
           </form>
-
         </div>
+
       </div>
     </div>
   );
