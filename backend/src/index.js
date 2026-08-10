@@ -13,7 +13,7 @@ import rentalRoutes from "./routes/rental.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import chatRoutes from "./routes/chat.routes.js";
 import aiRoutes from "./routes/ai.routes.js";
-
+import searchRoutes from "./routes/search.routes.js";
 
 
 dotenv.config();
@@ -28,7 +28,6 @@ app.use(cors({
 
 app.use(express.json());
 
-// 👇 YAHAN HAI MAGIC FIX! 
 // Yeh line Express ko batati hai ki 'uploads' folder ko public kardo taaki frontend images dekh sake
 app.use("/uploads", express.static("uploads"));
 
@@ -44,6 +43,7 @@ app.use("/api/rentals", rentalRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/search", searchRoutes);
 
 
 
