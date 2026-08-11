@@ -1,7 +1,9 @@
 import React, { useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function Sell() {
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState(null); 
   const fileInputRef = useRef(null);
@@ -23,7 +25,7 @@ export default function Sell() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!imagePreview) {
       alert("Please upload a product image first! 📸");
@@ -32,10 +34,34 @@ export default function Sell() {
     
     setIsSubmitting(true);
     
-    setTimeout(() => {
-      alert(`🎉 Boom! Your ${formData.brand} ${formData.name} is ready for the Vault! \n\n(Backend lagne ke baad ye sach mein save hoga)`);
+    try {
+      const payload = {
+        sellerId: "6a6fae40489c58d28720b516",
+        title: formData.name, 
+        brand: formData.brand,
+        category: formData.category,
+        condition: formData.condition,
+        price: formData.buyPrice,
+        rentPrice: formData.rentPrice ? `₹ ${formData.rentPrice}/d` : "Not for Rent",
+        isBuyable: true,
+        isRentable: formData.rentPrice ? true : false,
+        aiVerified: formData.aiVerification,
+        description: "Premium item from Vault Seller",
+        // Temporarily passing dummy image jab tak Cloudinary setup na ho jaye
+        imageUrl: "https://m.media-amazon.com/images/I/71o8Q5XJS5L._SY695_.jpg" 
+      };
+
+      await axios.post("http://localhost:5000/api/products/add", payload);
+      
+      alert(`🎉 Boom! Your ${formData.brand} ${formData.name} is now live in the Vault!`);
+      navigate("/shop"); 
+
+    } catch (error) {
+      console.error("Error saving product:", error);
+      alert("Failed to list item. Server error!");
+    } finally {
       setIsSubmitting(false);
-    }, 2000);
+    }
   };
 
   return (
@@ -111,13 +137,10 @@ export default function Sell() {
                
                {imagePreview ? (
                   <>
-                    {/* Blurry Background Layer */}
                     <div 
                       className="absolute inset-0 bg-cover bg-center blur-xl opacity-40" 
                       style={{ backgroundImage: `url(${imagePreview})` }}
                     ></div>
-                    
-                    {/* Original Image Layer (Fits perfectly) */}
                     <img src={imagePreview} alt="Preview" className="relative h-full w-full object-contain p-2 z-10" />
                   </>
                ) : (
