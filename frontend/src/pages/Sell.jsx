@@ -29,6 +29,17 @@ export default function Sell() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 🔥 1. Sabse pehle check karein ki user logged in hai ya nahi
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) {
+      alert("Please login first to list an item! 🛑");
+      navigate("/login");
+      return;
+    }
+
+    const user = JSON.parse(storedUser); // LocalStorage se data nikalkar object banaya
+
     if (!imageFile) {
       alert("Please upload a product image first! 📸");
       return;
@@ -40,8 +51,8 @@ export default function Sell() {
       // JSON ki jagah FormData banayenge photo bhejne ke liye
       const formDataToSend = new FormData();
       
-      // 🔥 Aapka asli MongoDB ID yahan append ho raha hai
-      formDataToSend.append("sellerId", "6a6fae40489c58d28720b516"); 
+      // 🔥 2. Yahan Hardcoded ID hata kar Asli User ID (user.id) laga di hai
+      formDataToSend.append("sellerId", user.id); 
       
       formDataToSend.append("title", formData.name);
       formDataToSend.append("brand", formData.brand);

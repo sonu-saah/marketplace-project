@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios"; // 🔥 Axios import kiya
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -10,12 +11,30 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    // Yahan hum apni Backend Login API (/api/auth/login) connect karenge
-    setTimeout(() => {
+    
+    try {
+      // Backend ko Email aur Password bhejna
+      const response = await axios.post("http://localhost:5000/api/auth/login", {
+        email,
+        password
+      });
+
+      // Backend se aane wala data pakadna
+      const { token, user } = response.data;
+
+      // 🔥 Browser ki memory (localStorage) mein Token aur User details save karna
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      alert("🎉 Login Successful!");
+      navigate("/"); // Success ke baad Home page par bhejein
+
+    } catch (error) {
+      console.error("Login error:", error);
+      alert(error.response?.data?.message || "Invalid credentials. Please try again!");
+    } finally {
       setLoading(false);
-      alert("Login Successful!");
-      navigate("/");
-    }, 1200);
+    }
   };
 
   return (
