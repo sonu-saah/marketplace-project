@@ -6,6 +6,7 @@ export default function Sell() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState(null); 
+  const [imageFile, setImageFile] = useState(null);
   const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
@@ -22,12 +23,13 @@ export default function Sell() {
     const file = e.target.files[0];
     if (file) {
       setImagePreview(URL.createObjectURL(file));
+      setImageFile(file); // 🔥 Asli file ko state mein save kar liya
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!imagePreview) {
+    if (!imageFile) {
       alert("Please upload a product image first! 📸");
       return;
     }
@@ -35,23 +37,31 @@ export default function Sell() {
     setIsSubmitting(true);
     
     try {
-      const payload = {
-        sellerId: "6a6fae40489c58d28720b516",
-        title: formData.name, 
-        brand: formData.brand,
-        category: formData.category,
-        condition: formData.condition,
-        price: formData.buyPrice,
-        rentPrice: formData.rentPrice ? `₹ ${formData.rentPrice}/d` : "Not for Rent",
-        isBuyable: true,
-        isRentable: formData.rentPrice ? true : false,
-        aiVerified: formData.aiVerification,
-        description: "Premium item from Vault Seller",
-        // Temporarily passing dummy image jab tak Cloudinary setup na ho jaye
-        imageUrl: "https://m.media-amazon.com/images/I/71o8Q5XJS5L._SY695_.jpg" 
-      };
+      // JSON ki jagah FormData banayenge photo bhejne ke liye
+      const formDataToSend = new FormData();
+      
+      // 🔥 Aapka asli MongoDB ID yahan append ho raha hai
+      formDataToSend.append("sellerId", "6a6fae40489c58d28720b516"); 
+      
+      formDataToSend.append("title", formData.name);
+      formDataToSend.append("brand", formData.brand);
+      formDataToSend.append("category", formData.category);
+      formDataToSend.append("condition", formData.condition);
+      formDataToSend.append("price", formData.buyPrice);
+      formDataToSend.append("rentPrice", formData.rentPrice ? `₹ ${formData.rentPrice}/d` : "Not for Rent");
+      formDataToSend.append("isBuyable", true);
+      formDataToSend.append("isRentable", formData.rentPrice ? true : false);
+      formDataToSend.append("aiVerified", formData.aiVerification);
+      
+      // Backend mein upload.single("image") likha tha, isliye yahan naam "image" diya hai
+      formDataToSend.append("image", imageFile); 
 
-      await axios.post("http://localhost:5000/api/products/add", payload);
+      // Axios call jisme Headers batayenge ki hum file bhej rahe hain
+      await axios.post("http://localhost:5000/api/products/add", formDataToSend, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       
       alert(`🎉 Boom! Your ${formData.brand} ${formData.name} is now live in the Vault!`);
       navigate("/shop"); 
