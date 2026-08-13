@@ -23,22 +23,21 @@ export default function Sell() {
     const file = e.target.files[0];
     if (file) {
       setImagePreview(URL.createObjectURL(file));
-      setImageFile(file); // 🔥 Asli file ko state mein save kar liya
+      setImageFile(file);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 🔥 1. Sabse pehle check karein ki user logged in hai ya nahi
-    const storedUser = localStorage.getItem("user");
-    if (!storedUser) {
+    // 🔥 FIX: LocalStorage se direct 'urbnlace_user_id' uthayenge jo humne login/register mein set ki thi
+    const sellerId = localStorage.getItem("urbnlace_user_id");
+    
+    if (!sellerId) {
       alert("Please login first to list an item! 🛑");
       navigate("/login");
       return;
     }
-
-    const user = JSON.parse(storedUser); // LocalStorage se data nikalkar object banaya
 
     if (!imageFile) {
       alert("Please upload a product image first! 📸");
@@ -48,11 +47,10 @@ export default function Sell() {
     setIsSubmitting(true);
     
     try {
-      // JSON ki jagah FormData banayenge photo bhejne ke liye
       const formDataToSend = new FormData();
       
-      // 🔥 2. Yahan Hardcoded ID hata kar Asli User ID (user.id) laga di hai
-      formDataToSend.append("sellerId", user.id); 
+      // 🔥 FIX: Asli MongoDB User ID ko sellerId mein bhej diya
+      formDataToSend.append("sellerId", sellerId); 
       
       formDataToSend.append("title", formData.name);
       formDataToSend.append("brand", formData.brand);
@@ -63,11 +61,8 @@ export default function Sell() {
       formDataToSend.append("isBuyable", true);
       formDataToSend.append("isRentable", formData.rentPrice ? true : false);
       formDataToSend.append("aiVerified", formData.aiVerification);
-      
-      // Backend mein upload.single("image") likha tha, isliye yahan naam "image" diya hai
       formDataToSend.append("image", imageFile); 
 
-      // Axios call jisme Headers batayenge ki hum file bhej rahe hain
       await axios.post("http://localhost:5000/api/products/add", formDataToSend, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -75,7 +70,7 @@ export default function Sell() {
       });
       
       alert(`🎉 Boom! Your ${formData.brand} ${formData.name} is now live in the Vault!`);
-      navigate("/shop"); 
+      navigate("/profile"); // 🔥 Success ke baad seedha Profile page par bhejenge taaki item dikh jaye
 
     } catch (error) {
       console.error("Error saving product:", error);
@@ -86,10 +81,8 @@ export default function Sell() {
   };
 
   return (
-    <div className="bg-[#050505] min-h-screen text-white font-sans selection:bg-[#E5B074] selection:text-black pb-20">
+    <div className="bg-[#050505] min-h-screen text-white font-sans selection:bg-[#E5B074] selection:text-black pb-20 pt-20">
       
-      
-
       <div className="max-w-7xl mx-auto px-6 md:px-16 pt-12 flex flex-col xl:flex-row gap-16">
         
         {/* Left Side: Instructions */}
@@ -136,7 +129,6 @@ export default function Sell() {
             
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#E5B074]/5 rounded-full blur-[80px] pointer-events-none"></div>
 
-            {/* 🔥 FITTING MAGIC: Blurry background + Original Image */}
             <div 
               onClick={() => fileInputRef.current.click()} 
               className="w-full h-48 rounded-2xl border-2 border-dashed border-white/20 hover:border-[#E5B074] flex flex-col items-center justify-center cursor-pointer transition-colors mb-8 bg-[#111] group overflow-hidden relative"
@@ -218,8 +210,8 @@ export default function Sell() {
             <button disabled={isSubmitting} type="submit" className="w-full py-4 bg-gradient-to-r from-[#E5B074] to-[#C98A47] text-black text-xs font-black tracking-widest uppercase rounded-xl hover:shadow-[0_0_20px_rgba(229,176,116,0.3)] transition-all flex justify-center items-center gap-2 transform active:scale-95">
               {isSubmitting ? (
                  <>
-                   <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></span>
-                   Processing Vault Entry...
+                  <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></span>
+                  Processing Vault Entry...
                  </>
               ) : "List Item in Vault"}
             </button>

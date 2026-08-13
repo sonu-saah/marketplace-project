@@ -1,132 +1,154 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios"; // 🔥 Axios import kiya
+import axios from "axios";
+
+// 🌟 Same showcase items matching register aesthetic
+const showcaseItems = [
+  {
+    image: "https://pngimg.com/uploads/watches/watches_PNG101443.png",
+    text1: "Welcome Back,",
+    text2: "Stay Premium",
+    scale: "w-2/5"
+  },
+  {
+    image: "https://pngimg.com/uploads/running_shoes/running_shoes_PNG5816.png",
+    text1: "Step Bold,",
+    text2: "Stay Iconic",
+    scale: "w-4/5" 
+  },
+  {
+    image: "https://pngimg.com/uploads/photo_camera/photo_camera_PNG101614.png",
+    text1: "Capture Life,",
+    text2: "Stay Sharp",
+    scale: "w-3/5" 
+  },
+  {
+    image: "https://pngimg.com/uploads/headphones/headphones_PNG101979.png",
+    text1: "Feel Sound,",
+    text2: "Stay Tuned",
+    scale: "w-3/5"
+  }
+];
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: ""
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % showcaseItems.length);
+    }, 3000); 
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    
     try {
-      // Backend ko Email aur Password bhejna
-      const response = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
-        password
-      });
-
-      // Backend se aane wala data pakadna
-      const { token, user } = response.data;
-
-      // 🔥 Browser ki memory (localStorage) mein Token aur User details save karna
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-
-      alert("🎉 Login Successful!");
-      navigate("/"); // Success ke baad Home page par bhejein
-
+      const { data } = await axios.post("http://localhost:5000/api/auth/login", formData);
+      
+      if (data.success) {
+        const userId = data.userId || data.user?._id;
+        if (userId) {
+          localStorage.setItem("urbnlace_user_id", userId);
+        }
+        alert("✨ Login successful!");
+        navigate("/");
+      }
     } catch (error) {
       console.error("Login error:", error);
       alert(error.response?.data?.message || "Invalid credentials. Please try again!");
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0d0b0a] text-white flex items-center justify-center p-6 relative overflow-hidden font-sans">
+    <div className="min-h-screen flex w-full font-sans bg-[#130E0B] text-white overflow-hidden">
       
-      {/* Background Glow & Blur Effects for Modern Vibe */}
-      <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#8C533E]/20 rounded-full blur-[120px] pointer-events-none"></div>
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[#C88A58]/10 rounded-full blur-[140px] pointer-events-none"></div>
+      <style>
+        {`
+          @keyframes float {
+            0% { transform: translateY(0px) rotate(-5deg); }
+            50% { transform: translateY(-20px) rotate(0deg); }
+            100% { transform: translateY(0px) rotate(-5deg); }
+          }
+          .animate-float {
+            animation: float 6s ease-in-out infinite;
+          }
+          ::-webkit-scrollbar { display: none; }
+        `}
+      </style>
 
-      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 bg-[#171311]/70 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden transition-all duration-500">
-        
-        {/* Left Side: Brand Visual & Catchy Quote */}
-        <div className="hidden lg:flex flex-col justify-between p-12 bg-gradient-to-br from-[#231C18] to-[#120F0D] relative border-r border-white/5">
-          <div className="flex items-center space-x-3">
-            <span className="text-xl font-black tracking-widest text-[#E2A06E]">URBNLACE</span>
-          </div>
-
-          <div className="my-auto space-y-4">
-            <h1 className="text-4xl font-extrabold tracking-tight leading-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-[#E2A06E] to-[#A26744]">
-              Step Bold, <br />Stay Iconic.
-            </h1>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              Experience the next-gen marketplace for exclusive streetwear, rentals, and curated fashion with AI intelligence.
-            </p>
-          </div>
-
-          <div className="text-xs text-gray-500">
-            © 2026 URBNLACE Marketplace. All rights reserved.
-          </div>
+      {/* LEFT SIDE: Visual Branding */}
+      <div className="hidden lg:flex w-1/2 bg-[#8B5E41] flex-col justify-between p-12 relative overflow-hidden">
+        <div className="z-20 font-bold tracking-[0.2em] text-xl text-[#2B1B12]">
+          URBNLACE
         </div>
 
-        {/* Right Side: Login Form */}
-        <div className="p-8 sm:p-12 flex flex-col justify-center">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold tracking-tight text-white mb-2">Welcome Back</h2>
-            <p className="text-sm text-gray-400">Please enter your details to sign in.</p>
-          </div>
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          {showcaseItems.map((item, index) => (
+            <img
+              key={index}
+              src={item.image}
+              alt="Premium Product"
+              className={`absolute animate-float z-10 transition-all duration-1000 ease-in-out ${item.scale} ${
+                index === currentIndex ? "opacity-100 scale-100" : "opacity-0 scale-90"
+              }`}
+              style={{ filter: 'drop-shadow(30px 40px 25px rgba(0,0,0,0.6))' }} 
+            />
+          ))}
+        </div>
 
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-gray-400 font-semibold mb-2">Email Address</label>
-              <input 
-                type="email" 
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@example.com"
-                className="w-full px-4 py-3.5 bg-[#211B18] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#C88A58] focus:ring-1 focus:ring-[#C88A58] transition-all duration-300 text-sm"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-gray-400 font-semibold mb-2">Password</label>
-              <input 
-                type="password" 
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full px-4 py-3.5 bg-[#211B18] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#C88A58] focus:ring-1 focus:ring-[#C88A58] transition-all duration-300 text-sm"
-              />
-            </div>
-
-            <div className="flex items-center justify-between text-xs text-gray-400">
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input type="checkbox" className="rounded bg-[#211B18] border-white/20 text-[#C88A58] focus:ring-0" />
-                <span>Remember me</span>
-              </label>
-              <a href="#" className="hover:text-[#C88A58] transition-colors">Forgot password?</a>
-            </div>
-
-            <button 
-              type="submit"
-              disabled={loading}
-              className="w-full py-4 bg-gradient-to-r from-[#C88A58] to-[#A26744] hover:from-[#d69865] hover:to-[#b3754e] text-white font-bold rounded-xl shadow-lg shadow-[#C88A58]/20 transition-all duration-300 transform active:scale-95 flex items-center justify-center space-x-2 text-sm tracking-wide"
+        <div className="z-20 pb-10 relative h-40">
+          {showcaseItems.map((item, index) => (
+            <h1
+              key={index}
+              className={`absolute bottom-0 left-0 text-6xl xl:text-7xl font-black text-[#2B1B12] leading-[1.1] tracking-tighter transition-all duration-1000 ease-in-out ${
+                index === currentIndex ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              }`}
             >
-              {loading ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <span>Sign In</span>
-              )}
+              {item.text1} <br /> {item.text2}
+            </h1>
+          ))}
+        </div>
+      </div>
+
+      {/* RIGHT SIDE: The Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 z-10 bg-[#130E0B]">
+        <div className="w-full max-w-md">
+          
+          <h2 className="text-3xl font-semibold mb-10 text-center text-white tracking-wide">
+            Sign In
+          </h2>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="text-xs text-gray-400 mb-2 block pl-1 font-medium">Email</label>
+              <input required name="email" value={formData.email} onChange={handleChange} type="email" className="w-full bg-transparent border border-[#3E2B22] focus:border-[#8B5E41] rounded-2xl px-5 py-3.5 outline-none transition-all duration-300 text-sm hover:border-[#5A4032] focus:shadow-[0_0_15px_rgba(139,94,65,0.2)]" />
+            </div>
+
+            <div>
+              <label className="text-xs text-gray-400 mb-2 block pl-1 font-medium">Password</label>
+              <input required name="password" value={formData.password} onChange={handleChange} type="password" className="w-full bg-transparent border border-[#3E2B22] focus:border-[#8B5E41] rounded-2xl px-5 py-3.5 outline-none transition-all duration-300 text-sm hover:border-[#5A4032] focus:shadow-[0_0_15px_rgba(139,94,65,0.2)]" />
+            </div>
+
+            <button type="submit" className="w-full bg-[#8B5E41] hover:bg-[#9C6B4B] text-white font-medium rounded-2xl py-4 mt-4 transition-all duration-300 transform active:scale-95 shadow-[0_10px_30px_rgba(139,94,65,0.3)] hover:shadow-[0_15px_35px_rgba(139,94,65,0.5)]">
+              Login to Account
             </button>
           </form>
 
-          <div className="mt-8 text-center text-sm text-gray-400">
-            Don't have an account?{" "}
-            <Link to="/register" className="text-[#E2A06E] font-medium hover:underline">
-              Create Account
-            </Link>
+          <div className="mt-6 text-center text-sm text-gray-400">
+            Don't have an account? <Link to="/register" className="text-[#8B5E41] hover:text-[#B3876A] font-medium transition-colors">Register</Link>
           </div>
-        </div>
 
+        </div>
       </div>
     </div>
   );

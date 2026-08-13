@@ -82,7 +82,7 @@ export default function Checkout() {
         }
 
         const options = {
-          key: "YAHAN_APNI_RAZORPAY_KEY_ID_DAALEIN", // 🔥 IMPORTANT: Yahan apni Key ID zaroor daalein
+          key: "rzp_test_TOpx1S47oOWuBs", // 🔥 IMPORTANT: Yahan apni Key ID zaroor daalein
           amount: data.order.amount,
           currency: "INR",
           name: "URBNLACE Vault",
