@@ -1,73 +1,94 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useContext } from "react";
-import { CartContext } from "../context/CartContext";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 export default function Navbar() {
-  const { cart } = useContext(CartContext);
-  const [currentUser, setCurrentUser] = useState(null);
+  const location = useLocation();
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // 🔥 Page load hote hi check karein ki user logged in hai ya nahi
+  // Check karein ki user logged in hai ya nahi (Local storage ke base par)
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser));
+    const userId = localStorage.getItem("urbnlace_user_id");
+    if (userId) {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
     }
-  }, []);
+  }, [location]); // Page change hone par check karega
 
-  // 🔥 Logout karne ka function
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setCurrentUser(null);
-    alert("Logged out successfully!");
-    navigate("/login");
+    localStorage.removeItem("urbnlace_user_id"); // ID hata do
+    setIsLoggedIn(false);
+    navigate("/"); // Home page par bhej do
   };
 
-  return (
-    <nav className="bg-slate-900 border-b border-white/10 px-6 py-4 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <Link to="/" className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
-          Marketplace
-        </Link>
-        <div className="flex gap-6 items-center">
-          <Link to="/" className="text-gray-300 hover:text-white text-sm font-medium transition-colors">Home</Link>
-          <Link to="/shop" className="text-gray-300 hover:text-white text-sm font-medium transition-colors">The Vault</Link>
-          <Link to="/sell" className="text-gray-300 hover:text-white text-sm font-medium transition-colors">List Item</Link>
-          
-          {/* Cart with Badge */}
-          <Link to="/cart" className="text-gray-300 hover:text-white text-sm font-medium transition-colors relative">
-            Cart
-            {cart.length > 0 && (
-              <span className="absolute -top-3 -right-4 bg-orange-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                {cart.length}
-              </span>
-            )}
-          </Link>
-          
-          <Link to="/profile" className="text-gray-300 hover:text-white text-sm font-medium transition-colors">Profile</Link>
+  const isActive = (path) => location.pathname === path;
 
-          {/* 🔥 Conditional Rendering: Agar user logged in hai toh Name & Logout, nahi toh Login button */}
-          {currentUser ? (
-            <div className="flex items-center gap-4">
-              <span className="text-xs font-bold text-indigo-300 bg-indigo-950/60 px-3 py-1.5 rounded-lg border border-indigo-500/20">
-                Hi, {currentUser.name.split(" ")[0]}
-              </span>
-              <button 
-                onClick={handleLogout}
-                className="bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/30 px-4 py-2 rounded-lg text-xs font-bold transition-all"
-              >
-                Logout
-              </button>
-            </div>
-          ) : (
-            <Link to="/login" className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-bold transition-all shadow-md">
-              Login
+  return (
+    <header className="fixed top-4 left-0 right-0 z-50 px-4 sm:px-8">
+      <div className="max-w-6xl mx-auto bg-[#0A0A0A]/85 backdrop-blur-xl border border-white/10 rounded-full px-6 py-3 flex justify-between items-center shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+        
+        {/* Logo / Brand */}
+        <Link to="/" className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#E5B074] to-[#A26744] flex items-center justify-center text-black font-black text-sm tracking-tighter shadow-lg group-hover:scale-105 transition-transform">
+            UL
+          </div>
+          <span className="text-sm font-black tracking-[0.25em] text-white">
+            URBN<span className="text-[#E5B074]">LACE</span>
+          </span>
+        </Link>
+
+        {/* Clean Core Navigation Links */}
+        <nav className="hidden md:flex items-center space-x-1 bg-white/[0.03] border border-white/5 rounded-full p-1">
+          {[
+            { name: "Home", path: "/" },
+            { name: "The Vault", path: "/shop" },
+            { name: "List Item", path: "/add" },
+            { name: "Cart", path: "/cart" },
+            ...(isLoggedIn ? [{ name: "Profile", path: "/profile" }] : []),
+          ].map((item) => (
+            <Link
+              key={item.name}
+              to={item.path}
+              className={`px-5 py-2 rounded-full text-xs font-bold tracking-wider uppercase transition-all duration-300 ${
+                isActive(item.path)
+                  ? "bg-[#E5B074] text-black shadow-md"
+                  : "text-gray-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              {item.name}
             </Link>
+          ))}
+        </nav>
+
+        {/* Dynamic Right Action (Login / Logout Toggle) */}
+        <div className="flex items-center gap-3">
+          {isLoggedIn ? (
+            <button
+              onClick={handleLogout}
+              className="bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-full transition-all"
+            >
+              Logout
+            </button>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Link
+                to="/login"
+                className="text-xs font-bold uppercase tracking-wider text-gray-300 hover:text-white px-3 py-2 transition-colors"
+              >
+                Login
+              </Link>
+              <Link
+                to="/register"
+                className="bg-gradient-to-r from-[#E5B074] to-[#C98A47] text-black text-xs font-black tracking-widest uppercase px-5 py-2.5 rounded-full shadow-lg hover:opacity-95 transition-all"
+              >
+                Register
+              </Link>
+            </div>
           )}
         </div>
+
       </div>
-    </nav>
+    </header>
   );
 }

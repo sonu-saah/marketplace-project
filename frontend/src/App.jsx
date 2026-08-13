@@ -10,7 +10,7 @@ import SizeRecommendation from "./pages/SizeRecommendation";
 import Sell from "./pages/Sell";
 import Register from "./pages/Register"; 
 import Shop from "./pages/Shop";
-
+import Checkout from "./pages/Checkout"; // Aapke folder path ke hisaab se
 
 export default function App() {
   return (
@@ -27,7 +27,8 @@ export default function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/SizeRecommendation" element={<SizeRecommendation />} />
          <Route path="/shop" element={<Shop />} />
-
+        <Route path="/checkout" element={<Checkout />} />
+        
         </Routes>
       </Router>
     </CartProvider>

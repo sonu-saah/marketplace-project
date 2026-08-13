@@ -1,13 +1,24 @@
 import express from "express";
-import { getAllProducts, createProduct } from "../controllers/product.controller.js";
-import { upload } from "../middlewares/multer.middleware.js"; // 1. Multer import kiya
+import { upload } from "../middlewares/multer.middleware.js";
+import { 
+  getAllProducts, 
+  createProduct, 
+  createPaymentOrder, 
+  getProductsByUser 
+} from "../controllers/product.controller.js";
 
 const router = express.Router();
 
+// Get all products route
 router.get("/", getAllProducts); 
 
-// 2. Route ke beech mein upload.single("image") laga diya
-// Iska matlab hai frontend se jo photo aayegi, uska naam "image" hoga
+// Add product route with Multer image upload middleware
 router.post("/add", upload.single("image"), createProduct);
+
+// Razorpay Payment Order Route
+router.post("/payment/create-order", createPaymentOrder);
+
+// User ke products fetch karne ka route
+router.get("/user/:sellerId", getProductsByUser);
 
 export default router;

@@ -88,20 +88,7 @@ export default function Sell() {
   return (
     <div className="bg-[#050505] min-h-screen text-white font-sans selection:bg-[#E5B074] selection:text-black pb-20">
       
-      {/* Navbar */}
-      <nav className="w-full border-b border-white/5 py-5 px-8 md:px-16 flex justify-between items-center bg-[#050505]/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="text-xl font-black tracking-[0.2em] text-[#E5B074]">
-          URBN<span className="text-white">LACE</span>
-        </div>
-        <div className="hidden md:flex space-x-10 text-xs font-bold tracking-widest uppercase text-gray-400">
-          <Link to="/" className="hover:text-white transition-colors">Home</Link>
-          <Link to="/shop" className="hover:text-white transition-colors">The Vault</Link>
-          <span className="text-white border-b-2 border-[#E5B074] pb-1">List Item</span>
-        </div>
-        <div className="flex space-x-6 items-center">
-          <Link to="/profile" className="text-xs font-bold text-gray-400 hover:text-white">Profile</Link>
-        </div>
-      </nav>
+      
 
       <div className="max-w-7xl mx-auto px-6 md:px-16 pt-12 flex flex-col xl:flex-row gap-16">
         

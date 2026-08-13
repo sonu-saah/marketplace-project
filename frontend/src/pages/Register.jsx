@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios"; // 🔥 Axios import kiya
+import axios from "axios";
 
 // 🌟 Humari Dynamic Products ki List (Images + unke Catchy Texts)
 const showcaseItems = [
@@ -32,9 +32,9 @@ const showcaseItems = [
 
 export default function Register() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const navigate = useNavigate(); // 🔥 Redirect karne ke liye
+  const navigate = useNavigate();
 
-  // 🔥 Form data ko handle karne ke liye state
+  // 🔥 Form data state
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -50,28 +50,34 @@ export default function Register() {
     return () => clearInterval(interval);
   }, []);
 
-  // 🔥 Inputs mein type karte waqt state update karna
+  // 🔥 Inputs update handler
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 🔥 Form Submit karne ka logic
+  // 🔥 Form Submit Logic (Updated with auto-login/storage token)
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Page refresh hone se rokne ke liye
+    e.preventDefault();
     
     try {
-      // Backend ko bhejne wala data (Hum first aur last name ko jod kar 'name' bana rahe hain)
       const payload = {
         name: `${formData.firstName} ${formData.lastName}`,
         email: formData.email,
         password: formData.password
       };
 
-      // Backend API call (Route apna backend check kar lena)
-const response = await axios.post("http://localhost:5000/api/auth/register", payload);
+      const { data } = await axios.post("http://localhost:5000/api/auth/register", payload);
       
-      alert("🎉 Account created successfully! Please login to continue.");
-      navigate("/login"); // Success ke baad Login page par bhejein
+      if (data.success) {
+        // 🔥 Zaroori Step: User ID ko local storage mein save karna taaki Profile & Navbar sync rahein
+        const userId = data.userId || data.user?._id;
+        if (userId) {
+          localStorage.setItem("urbnlace_user_id", userId);
+        }
+
+        alert("🎉 Account created successfully!");
+        navigate("/"); // Home page par redirect karein
+      }
 
     } catch (error) {
       console.error("Registration error:", error);
@@ -144,7 +150,6 @@ const response = await axios.post("http://localhost:5000/api/auth/register", pay
             Create Account
           </h2>
 
-          {/* 🔥 Form tag mein onSubmit add kiya */}
           <form onSubmit={handleSubmit} className="space-y-6">
             
             {/* Name Fields */}
@@ -171,7 +176,7 @@ const response = await axios.post("http://localhost:5000/api/auth/register", pay
               <input required name="password" value={formData.password} onChange={handleChange} type="password" minLength="6" className="w-full bg-transparent border border-[#3E2B22] focus:border-[#8B5E41] rounded-2xl px-5 py-3.5 outline-none transition-all duration-300 text-sm hover:border-[#5A4032] focus:shadow-[0_0_15px_rgba(139,94,65,0.2)]" />
             </div>
 
-            {/* Primary Button - Type submit kiya */}
+            {/* Primary Button */}
             <button type="submit" className="w-full bg-[#8B5E41] hover:bg-[#9C6B4B] text-white font-medium rounded-2xl py-4 mt-4 transition-all duration-300 transform active:scale-95 shadow-[0_10px_30px_rgba(139,94,65,0.3)] hover:shadow-[0_15px_35px_rgba(139,94,65,0.5)]">
               Create Account
             </button>
@@ -180,23 +185,6 @@ const response = await axios.post("http://localhost:5000/api/auth/register", pay
           {/* Login Link */}
           <div className="mt-6 text-center text-sm text-gray-400">
             Already have an account? <Link to="/login" className="text-[#8B5E41] hover:text-[#B3876A] font-medium transition-colors">Login</Link>
-          </div>
-
-          {/* Divider */}
-          <div className="flex items-center my-8">
-            <div className="flex-grow border-t border-[#3E2B22]"></div>
-            <span className="px-4 text-xs text-gray-500 uppercase tracking-widest">Or</span>
-            <div className="flex-grow border-t border-[#3E2B22]"></div>
-          </div>
-
-          {/* Social Buttons */}
-          <div className="grid grid-cols-2 gap-4">
-            <button type="button" className="flex items-center justify-center gap-3 border border-[#3E2B22] hover:border-[#5A4032] hover:bg-[#1A130F] rounded-2xl py-3.5 text-xs font-medium transition-all duration-300 transform active:scale-95">
-              📧 Continue with Email
-            </button>
-            <button type="button" className="flex items-center justify-center gap-3 border border-[#3E2B22] hover:border-[#5A4032] hover:bg-[#1A130F] rounded-2xl py-3.5 text-xs font-medium transition-all duration-300 transform active:scale-95">
-              🍎 Continue with Apple
-            </button>
           </div>
 
         </div>
