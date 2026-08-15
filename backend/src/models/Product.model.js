@@ -4,7 +4,7 @@ const productSchema = new mongoose.Schema(
   {
     sellerId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Yeh assume kar rahe hain ki aapka user model "User" naam se hai
+      ref: "User",
       required: true,
     },
     title: {
@@ -18,7 +18,6 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    // 🔥 YEH NAYI FIELDS HAIN JO RENT AUR AI KE LIYE ZAROORI HAIN
     rentPrice: {
       type: String,
       default: "Not for Rent",
@@ -49,6 +48,18 @@ const productSchema = new mongoose.Schema(
     condition: {
       type: String,
       required: true,
+    },
+    // 🔥 NEW FIELDS FOR PREMIUM RESALE (OLX-style feature)
+    phone: {
+      type: String,
+    },
+    location: {
+      type: String,
+    },
+    listingType: {
+      type: String,
+      enum: ["resale", "new"],
+      default: "resale",
     },
   },
   { timestamps: true }

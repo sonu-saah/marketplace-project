@@ -14,6 +14,8 @@ import adminRoutes from "./routes/admin.routes.js";
 import chatRoutes from "./routes/chat.routes.js";
 import aiRoutes from "./routes/ai.routes.js";
 import searchRoutes from "./routes/search.routes.js";
+import fitRoutes from "./routes/fitRoutes.js";
+//const fitRoutes = require("./routes/fitRoutes");
 
 
 dotenv.config();
@@ -21,8 +23,11 @@ connectDB();
 
 const app = express();
 
+// 🔥 FIXED: CORS configuration taaki port 5176 ya koi bhi port block na ho
 app.use(cors({
-    origin: ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"], 
+    origin: "*", 
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true
 }));
 
@@ -44,9 +49,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/search", searchRoutes);
-
-
-
+app.use("/api/ai", fitRoutes);
 
 app.get("/", (req, res) => {
   res.send("Welcome to Backend API! Database Connected Successfully.");
