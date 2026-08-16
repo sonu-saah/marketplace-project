@@ -1,7 +1,13 @@
 import UserFitProfile from "../models/UserFitProfile.js";
 import SizeChart from "../models/SizeChart.model.js";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// 1. Save or Update User Fit Profile
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+
+
+
+
 export const saveFitProfile = async (req, res) => {
   try {
     const { userId, height, weight, chest, waist, hip, shoulder, inseam, preferredFit, previousBrandSizes } = req.body;
@@ -124,5 +130,49 @@ export const calculateSizeRecommendation = async (req, res) => {
   } catch (error) {
     console.error("Error calculating recommendation:", error);
     res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+
+// 5. AI Explanation for Size Recommendation with Safe Fallback
+export const getAiFitExplanation = async (req, res) => {
+  try {
+    const { userId, brand, category, recommendedSize, fitScoreBreakdown } = req.body;
+
+    const userProfile = await UserFitProfile.findOne({ userId });
+    if (!userProfile) {
+      return res.status(404).json({ success: false, message: "Profile not found" });
+    }
+
+    const prompt = `You are an expert AI fashion and fit assistant for an e-commerce platform named URBNLACE. 
+    A user with measurements (Chest: ${userProfile.chest} inches, Waist: ${userProfile.waist} inches, Shoulder: ${userProfile.shoulder} inches) and preferred fit "${userProfile.preferredFit}" is recommended size "${recommendedSize}" for a ${brand} ${category}. 
+    The fit breakdown match scores are: Chest ${fitScoreBreakdown.chest}%, Shoulder ${fitScoreBreakdown.shoulder}%, Overall ${fitScoreBreakdown.overall}%.
+    Write a short, concise, natural-language explanation (max 2 sentences) telling the user why this size is recommended based on their measurements. Do not expose internal technical logic. Keep it friendly and helpful.`;
+
+    let aiText = "";
+
+    try {
+      // Try calling Gemini model
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      aiText = response.text() ? response.text().trim() : "";
+    } catch (aiError) {
+      console.warn("Gemini API call skipped due to account model restriction, using smart fallback.");
+    }
+
+    // Fallback if AI text is empty or failed
+    if (!aiText) {
+      aiText = `Based on your measurements (Chest: ${userProfile.chest}in, Shoulder: ${userProfile.shoulder}in), size ${recommendedSize} is tailored to give you the ideal ${userProfile.preferredFit} fit for this ${brand} ${category}.`;
+    }
+
+    res.status(200).json({
+      success: true,
+      explanation: aiText
+    });
+
+  } catch (error) {
+    console.error("Server Error:", error);
+    res.status(500).json({ success: false, message: "Failed to process fit explanation" });
   }
 };

@@ -3,14 +3,15 @@ import {
   saveFitProfile, 
   getFitProfile, 
   addSizeChart, 
-  calculateSizeRecommendation 
+  calculateSizeRecommendation, 
+  getAiFitExplanation 
 } from "../controllers/fitController.js";
 
-const router = express.Router(); // 🔥 Pehle router declare karein
+const router = express.Router(); 
 
 router.post("/fit-profile", saveFitProfile);
 router.get("/fit-profile/:userId", getFitProfile);
 router.post("/admin/size-chart", addSizeChart);
-router.post("/size-recommendation", calculateSizeRecommendation); // 🔥 Phir routes define karein
-
+router.post("/size-recommendation", calculateSizeRecommendation); 
+router.post("/ai/fit-explanation", getAiFitExplanation);
 export default router;
