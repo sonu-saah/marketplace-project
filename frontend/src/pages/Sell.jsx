@@ -11,7 +11,8 @@ export default function Sell() {
 
   const [formData, setFormData] = useState({
     name: "", brand: "", category: "Sneakers", condition: "New",
-    buyPrice: "", rentPrice: "", aiVerification: false
+    buyPrice: "", rentPrice: "", aiVerification: false,
+    phone: "", location: "" // 🔥 OLX-style Resale fields added
   });
 
   const handleChange = (e) => {
@@ -27,11 +28,11 @@ export default function Sell() {
     }
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 🔥 FIX: LocalStorage se direct 'urbnlace_user_id' uthayenge jo humne login/register mein set ki thi
-    const sellerId = localStorage.getItem("urbnlace_user_id");
+    // 🔥 Dono keys check kar lenge taaki kabhi error na aaye
+    const sellerId = localStorage.getItem("urbnlace_user_id") || localStorage.getItem("userId");
     
     if (!sellerId) {
       alert("Please login first to list an item! 🛑");
@@ -49,9 +50,7 @@ export default function Sell() {
     try {
       const formDataToSend = new FormData();
       
-      // 🔥 FIX: Asli MongoDB User ID ko sellerId mein bhej diya
       formDataToSend.append("sellerId", sellerId); 
-      
       formDataToSend.append("title", formData.name);
       formDataToSend.append("brand", formData.brand);
       formDataToSend.append("category", formData.category);
@@ -60,7 +59,12 @@ export default function Sell() {
       formDataToSend.append("rentPrice", formData.rentPrice ? `₹ ${formData.rentPrice}/d` : "Not for Rent");
       formDataToSend.append("isBuyable", true);
       formDataToSend.append("isRentable", formData.rentPrice ? true : false);
-      formDataToSend.append("aiVerified", formData.aiVerification);
+      formDataToSend.append("aiVerification", formData.aiVerification);
+      
+      formDataToSend.append("phone", formData.phone);
+      formDataToSend.append("location", formData.location);
+      formDataToSend.append("listingType", "resale");
+
       formDataToSend.append("image", imageFile); 
 
       await axios.post("http://localhost:5000/api/products/add", formDataToSend, {
@@ -70,7 +74,7 @@ export default function Sell() {
       });
       
       alert(`🎉 Boom! Your ${formData.brand} ${formData.name} is now live in the Vault!`);
-      navigate("/profile"); // 🔥 Success ke baad seedha Profile page par bhejenge taaki item dikh jaye
+      navigate("/profile"); // 🔥 Success ke baad ab yeh seedha profile ya vault page par move ho jayega!
 
     } catch (error) {
       console.error("Error saving product:", error);
@@ -95,7 +99,7 @@ export default function Sell() {
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E5B074] to-[#A26744]">Grails.</span>
           </h1>
           <p className="text-gray-400 text-sm leading-relaxed mb-10">
-            Join thousands of collectors. List your premium sneakers, luxury watches, and streetwear. Choose to sell them outright or earn passive income by renting them out.
+            Join thousands of collectors. List your pre-owned items or non-returnable gear with direct chat, call, and location features.
           </p>
 
           <div className="space-y-6">
@@ -103,21 +107,14 @@ export default function Sell() {
                 <div className="w-10 h-10 rounded-full bg-[#111] flex items-center justify-center text-[#E5B074] font-bold border border-white/5">1</div>
                 <div>
                    <h4 className="font-bold text-sm mb-1">Upload Details</h4>
-                   <p className="text-xs text-gray-500">Add high-quality photos and exact product specifications.</p>
+                   <p className="text-xs text-gray-500">Add photos, contact info, and location.</p>
                 </div>
              </div>
              <div className="flex gap-4 items-start">
                 <div className="w-10 h-10 rounded-full bg-[#111] flex items-center justify-center text-[#E5B074] font-bold border border-white/5">2</div>
                 <div>
                    <h4 className="font-bold text-sm mb-1">Set Your Price</h4>
-                   <p className="text-xs text-gray-500">Decide your Buy price and Per-Day Rent price.</p>
-                </div>
-             </div>
-             <div className="flex gap-4 items-start">
-                <div className="w-10 h-10 rounded-full bg-[#111] flex items-center justify-center text-[#E5B074] font-bold border border-white/5">3</div>
-                <div>
-                   <h4 className="font-bold text-sm mb-1">AI Authentication (Optional)</h4>
-                   <p className="text-xs text-gray-500">Get the 'Verified' badge using our AI image scanner to sell 3x faster.</p>
+                   <p className="text-xs text-gray-500">Decide your resale or buy price.</p>
                 </div>
              </div>
           </div>
@@ -165,6 +162,18 @@ export default function Sell() {
               </div>
             </div>
 
+            {/* 🔥 NEW INPUTS: Phone & Location for OLX-style Resale */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <label className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-2 block">Contact Phone Number</label>
+                <input required name="phone" value={formData.phone} onChange={handleChange} type="text" placeholder="e.g., +91 9876543210" className="w-full bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#E5B074] transition-colors" />
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-2 block">Location / City</label>
+                <input required name="location" value={formData.location} onChange={handleChange} type="text" placeholder="e.g., Delhi, Mumbai" className="w-full bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#E5B074] transition-colors" />
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div>
                 <label className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-2 block">Category</label>
@@ -179,7 +188,7 @@ export default function Sell() {
               <div>
                 <label className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-2 block">Condition</label>
                 <select name="condition" value={formData.condition} onChange={handleChange} className="w-full bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#E5B074] transition-colors">
-                  <option value="New">Brand New / Deadstock</option>
+                  <option value="New">Brand New / Unopened</option>
                   <option value="Mint">Mint Condition</option>
                   <option value="Used">Gently Used</option>
                 </select>
@@ -190,30 +199,18 @@ export default function Sell() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div>
-                <label className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-2 block">Buy Price (₹)</label>
-                <input required name="buyPrice" value={formData.buyPrice} onChange={handleChange} type="number" placeholder="Enter full sale price" className="w-full bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#E5B074] transition-colors" />
+                <label className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-2 block">Resale / Selling Price (₹)</label>
+                <input required name="buyPrice" value={formData.buyPrice} onChange={handleChange} type="number" placeholder="Enter price" className="w-full bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#E5B074] transition-colors" />
               </div>
-              <div>
-                <label className="text-[10px] uppercase tracking-widest text-[#E5B074] font-bold mb-2 block">Rent Price (₹ / Day)</label>
-                <input name="rentPrice" value={formData.rentPrice} onChange={handleChange} type="number" placeholder="Leave blank if not renting" className="w-full bg-[#1A1A1A] border border-white/10 rounded-xl px-4 py-3 text-sm text-[#E5B074] outline-none focus:border-[#E5B074] transition-colors placeholder-gray-600" />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4 mb-10 bg-[#111] p-4 rounded-xl border border-white/5">
-               <input type="checkbox" name="aiVerification" checked={formData.aiVerification} onChange={handleChange} className="w-5 h-5 accent-[#E5B074] cursor-pointer" id="aiCheck" />
-               <label htmlFor="aiCheck" className="cursor-pointer">
-                  <h4 className="text-sm font-bold">Request AI Authentication 🤖</h4>
-                  <p className="text-[10px] text-gray-500 mt-1">Our AI will scan your images to provide a 'Verified' badge.</p>
-               </label>
             </div>
 
             <button disabled={isSubmitting} type="submit" className="w-full py-4 bg-gradient-to-r from-[#E5B074] to-[#C98A47] text-black text-xs font-black tracking-widest uppercase rounded-xl hover:shadow-[0_0_20px_rgba(229,176,116,0.3)] transition-all flex justify-center items-center gap-2 transform active:scale-95">
               {isSubmitting ? (
                  <>
                   <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></span>
-                  Processing Vault Entry...
+                  Processing Resale Listing...
                  </>
-              ) : "List Item in Vault"}
+              ) : "List Item for Resale"}
             </button>
 
           </form>

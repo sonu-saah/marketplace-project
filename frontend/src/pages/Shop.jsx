@@ -3,6 +3,9 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
 
+
+
+
 export default function Shop() {
   const [productsData, setProductsData] = useState([]);
   const [activeCategory, setActiveCategory] = useState("All");

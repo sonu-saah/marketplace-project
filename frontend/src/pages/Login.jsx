@@ -56,9 +56,11 @@ export default function Login() {
       const { data } = await axios.post("http://localhost:5000/api/auth/login", formData);
       
       if (data.success) {
-        const userId = data.userId || data.user?._id;
+        const userId = data.userId || data.user?._id || data.user?.id;
         if (userId) {
+          // 🔥 Dono keys store kar li hain taaki Sell page par kabhi mismatch na ho
           localStorage.setItem("urbnlace_user_id", userId);
+          localStorage.setItem("userId", userId);
         }
         alert("✨ Login successful!");
         navigate("/");
@@ -139,9 +141,9 @@ export default function Login() {
               <input required name="password" value={formData.password} onChange={handleChange} type="password" className="w-full bg-transparent border border-[#3E2B22] focus:border-[#8B5E41] rounded-2xl px-5 py-3.5 outline-none transition-all duration-300 text-sm hover:border-[#5A4032] focus:shadow-[0_0_15px_rgba(139,94,65,0.2)]" />
             </div>
 
-            <button type="submit" className="w-full bg-[#8B5E41] hover:bg-[#9C6B4B] text-white font-medium rounded-2xl py-4 mt-4 transition-all duration-300 transform active:scale-95 shadow-[0_10px_30px_rgba(139,94,65,0.3)] hover:shadow-[0_15px_35px_rgba(139,94,65,0.5)]">
-              Login to Account
-            </button>
+            <button type="submit" className="w-full bg-[#8B5E41] hover:bg-[#9C6B4B] text-white font-medium rounded-2xl py-4 mt-4 transition-all duration-300">
+  Login to Account
+</button>
           </form>
 
           <div className="mt-6 text-center text-sm text-gray-400">

@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { CartProvider } from "./context/CartContext";
 import Navbar from "./components/Navbar";
+
 import Home from "./pages/Home";
 import Cart from "./pages/Cart";
 import Profile from "./pages/Profile";
@@ -11,6 +12,10 @@ import Sell from "./pages/Sell";
 import Register from "./pages/Register"; 
 import Shop from "./pages/Shop";
 import Checkout from "./pages/Checkout"; // Aapke folder path ke hisaab se
+
+
+
+
 
 export default function App() {
   return (
