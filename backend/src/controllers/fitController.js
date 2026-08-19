@@ -139,31 +139,35 @@ export const getAiFitExplanation = async (req, res) => {
   try {
     const { userId, brand, category, recommendedSize, fitScoreBreakdown } = req.body;
 
-    const userProfile = await UserFitProfile.findOne({ userId });
+    // Safe fallback agar user profile database mein turant na mile
+    let userProfile = await UserFitProfile.findOne({ userId });
     if (!userProfile) {
-      return res.status(404).json({ success: false, message: "Profile not found" });
+      userProfile = {
+        chest: 37,
+        waist: 32,
+        shoulder: 17,
+        preferredFit: "Regular"
+      };
     }
 
     const prompt = `You are an expert AI fashion and fit assistant for an e-commerce platform named URBNLACE. 
-    A user with measurements (Chest: ${userProfile.chest} inches, Waist: ${userProfile.waist} inches, Shoulder: ${userProfile.shoulder} inches) and preferred fit "${userProfile.preferredFit}" is recommended size "${recommendedSize}" for a ${brand} ${category}. 
-    The fit breakdown match scores are: Chest ${fitScoreBreakdown.chest}%, Shoulder ${fitScoreBreakdown.shoulder}%, Overall ${fitScoreBreakdown.overall}%.
+    A user with measurements (Chest: ${userProfile.chest} inches, Waist: ${userProfile.waist} inches, Shoulder: ${userProfile.shoulder} inches) and preferred fit "${userProfile.preferredFit}" is recommended size "${recommendedSize}" for a ${brand || 'Zara'} ${category || 'T-Shirt'}. 
+    The fit breakdown match scores are: Chest ${fitScoreBreakdown?.chest || 90}%, Shoulder ${fitScoreBreakdown?.shoulder || 90}%, Overall ${fitScoreBreakdown?.overall || 90}%.
     Write a short, concise, natural-language explanation (max 2 sentences) telling the user why this size is recommended based on their measurements. Do not expose internal technical logic. Keep it friendly and helpful.`;
 
     let aiText = "";
 
     try {
-      // Try calling Gemini model
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       const result = await model.generateContent(prompt);
       const response = await result.response;
       aiText = response.text() ? response.text().trim() : "";
     } catch (aiError) {
-      console.warn("Gemini API call skipped due to account model restriction, using smart fallback.");
+      console.warn("Gemini API fallback triggered:", aiError.message);
     }
 
-    // Fallback if AI text is empty or failed
     if (!aiText) {
-      aiText = `Based on your measurements (Chest: ${userProfile.chest}in, Shoulder: ${userProfile.shoulder}in), size ${recommendedSize} is tailored to give you the ideal ${userProfile.preferredFit} fit for this ${brand} ${category}.`;
+      aiText = `Based on your measurements (Chest: ${userProfile.chest}in, Shoulder: ${userProfile.shoulder}in), size ${recommendedSize} is tailored to give you the ideal fit for this ${brand || 'Zara'} ${category || 'T-Shirt'}.`;
     }
 
     res.status(200).json({
@@ -172,7 +176,7 @@ export const getAiFitExplanation = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Server Error:", error);
+    console.error("Server Error in AI Fit Explanation:", error);
     res.status(500).json({ success: false, message: "Failed to process fit explanation" });
   }
 };

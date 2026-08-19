@@ -15,15 +15,13 @@ import chatRoutes from "./routes/chat.routes.js";
 import aiRoutes from "./routes/ai.routes.js";
 import searchRoutes from "./routes/search.routes.js";
 import fitRoutes from "./routes/fitRoutes.js";
-//const fitRoutes = require("./routes/fitRoutes");
-
 
 dotenv.config();
 connectDB();
 
 const app = express();
 
-// 🔥 FIXED: CORS configuration taaki port 5176 ya koi bhi port block na ho
+// CORS configuration
 app.use(cors({
     origin: "*", 
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -33,7 +31,7 @@ app.use(cors({
 
 app.use(express.json());
 
-// Yeh line Express ko batati hai ki 'uploads' folder ko public kardo taaki frontend images dekh sake
+// Public uploads folder
 app.use("/uploads", express.static("uploads"));
 
 // API Routes
@@ -49,7 +47,9 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/search", searchRoutes);
-app.use("/api/ai", fitRoutes);
+
+// 🔥 FIXED: Isko /api banaya taaki fitRoutes ke andar ke paths (/fit/profile, /ai/fit-explanation) direct match ho sakein
+app.use("/api", fitRoutes);
 
 app.get("/", (req, res) => {
   res.send("Welcome to Backend API! Database Connected Successfully.");
